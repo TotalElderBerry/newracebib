@@ -1,0 +1,43 @@
+import cv2
+import numpy as np
+from PIL import Image
+from pre_process import pre_image, deskew
+import os
+
+def is_dark(image_path, threshold=100):
+    # Calculate the mean pixel intensity
+    mean_intensity = cv2.mean(image)[0]
+
+    # Check if the image is dark based on the threshold
+    return mean_intensity < threshold
+
+image = cv2.imread('bib_images/roi_image_5.jpg')
+image = cv2.resize(image,(300,250))
+isdark = is_dark(image)
+
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+gamma = 1.1
+invGamma = 1.0 / gamma
+table = np.array([((i/255.0)**invGamma)*255
+    for i in np.arange(0,256)]).astype("uint8")
+gray = cv2.LUT(gray,table)
+
+skewed_image = deskew(gray)
+
+scale = cv2.resize(image,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
+
+scale = cv2.cvtColor(scale, cv2.COLOR_BGR2GRAY)
+if isdark:
+    _, image = cv2.threshold(image, 128, 255, cv2.THRESH_BINARY)
+    scale = cv2.adaptiveThreshold(scale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+else:
+    scale = cv2.threshold(scale, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    
+cnts = cv2.findContours(scale, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+cnts = cnts[0] if len(cnts) > 0 else cnts[1]
+
+print(f"Number of contours: {len(cnts)}")
+cv2.imshow('Bib', scale)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
