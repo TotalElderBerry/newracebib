@@ -10,12 +10,12 @@ from PIL import Image
 # >>> from cascadeutils import generate_negative_description_file
 # >>> generate_negative_description_file()
 # >>> exit()
-def generate_negative_description_file():
+def generate_negative_description_file(folder):
     # open the output file for writing. will overwrite all existing data in there
-    with open('neg.txt', 'w') as f:
+    with open(f'{folder}.txt', 'w') as f:
         # loop over all the filenames
-        for filename in os.listdir('n'):
-            f.write('n/' + filename + '\n')
+        for filename in os.listdir(folder):
+            f.write(f'{folder}/' + filename + '\n')
 
 def resize_images(input_folder):
     max_width = 1366
@@ -35,3 +35,27 @@ def resize_images(input_folder):
 
             # Save the resized image (overwrite the existing image)
             image.save(input_path)
+
+def rename_files(folder_path):
+    # Get the list of files in the folder
+    file_list = os.listdir(folder_path)
+
+    # Filter only image files (assuming all are jpg)
+    image_files = [file for file in file_list if file.lower().endswith('.jpg')]
+
+    # Sort the image files to ensure they are renamed in order
+    image_files.sort()
+
+    # Iterate through each image file and rename it dynamically
+    for i, filename in enumerate(image_files, start=1):
+        new_filename = os.path.join(folder_path, f'a{i}.jpg')
+
+        # Construct the new filename
+        new_filename = os.path.join(folder_path, f'a{i}.jpg')
+
+        # Rename the file
+        os.rename(os.path.join(folder_path, filename), new_filename)
+
+        print(f'Renamed {filename} to {new_filename}')
+
+    print('Renaming complete.')

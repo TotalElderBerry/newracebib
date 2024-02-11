@@ -103,8 +103,9 @@ def gaussian(image):
 
 def deskew(image):
     angle = determine_skew(image)
+    if angle is None:
+        return None
     if angle < 0:
-        print(f"The angle is {angle}")
         rotated = rotate(image, angle, resize=True) * 255
         return rotated.astype(np.uint8)
     return image

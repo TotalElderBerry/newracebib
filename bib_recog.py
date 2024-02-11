@@ -2,12 +2,10 @@ import os
 import cv2
 import pytesseract
 import numpy as np
-import imutils
-from PIL import Image
-from pre_process import pre_image
+from ocr import ocr
 
-def scale_roi(x,y,w,h):
-    expansion_factor = 1.15
+def scale_roi(x, y, w, h, image_shape):
+    expansion_factor = 1.1
     new_x = int(x - (w * (expansion_factor - 1) / 2))
     new_y = int(y - (h * (expansion_factor - 1) / 2))
     new_w = int(w * expansion_factor)
@@ -16,92 +14,56 @@ def scale_roi(x,y,w,h):
     # Ensure the new coordinates are within the image boundaries
     new_x = max(new_x, 0)
     new_y = max(new_y, 0)
-    new_w = min(new_w, image.shape[1] - new_x)
-    new_h = min(new_h, image.shape[0] - new_y)
+    new_w = min(new_w, image_shape[1] - new_x)
+    new_h = min(new_h, image_shape[0] - new_y)
 
-    return new_x,new_y,new_w,new_h
+    return new_x, new_y, new_w, new_h   
 
 # Load the cascade
 cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
 
 # Folder paths
 input_folder = 'test_images'
-output_folder = 'output_images'
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe'  # Set the path to your Tesseract executable
-custom_config = r'--psm 6 -c tessedit_char_whitelist=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Adjust OCR settings as needed
-# image_path = os.path.join(input_folder, filename)
-# Read the input image
-image = cv2.imread('test_images/t6.jpg')
+# Iterate through each file in the folder
+for filename in os.listdir(input_folder):
+    if filename.endswith(".jpg"):
+        # Read the input image
+        image_path = os.path.join(input_folder, filename)
+        image = cv2.imread(image_path)
+        if image is None:
+            continue
 
-# Convert the image to grayscale
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # Convert the image to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-# Detect objects in the image
-objects = cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(45, 45))
-result_image = image.copy()
+        # Detect objects in the image
+        objects = cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=9, minSize=(55, 55))
+        result_image = image.copy()
 
-# Adjust OCR settings as needed
-# Draw rectangles around the detected objects
-print(f"Number of objects: {len(objects)}")
-for (x, y, w, h) in objects:
-    new_x,new_y,new_w,new_h = scale_roi(x,y,w,h)
-    temp_x = x
-    temp_y = y
-    temp_w = w
-    temp_h = h
-    roi = gray[new_y:new_y+new_h, new_x:new_x+new_w]  # Extract the region of interest
-    
-    if temp_y+temp_h < gray.shape[0]-150: #check if object is at the bottom (for watermarks)
-        # roi = pre_image(roi)
-        # cnts = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # cnts = cnts[0] if len(cnts) > 0 else cnts[1]    
+        # Draw rectangles around the detected objects
+        print(f"Number of objects detected in {filename}: {len(objects)}")
+        for (x, y, w, h) in objects:
+            new_x, new_y, new_w, new_h = scale_roi(x, y, w, h, gray.shape)
+            roi = gray[new_y:new_y+new_h, new_x:new_x+new_w]  # Extract the region of interest
+            if new_y + new_h < gray.shape[0] - 150:  # Check if object is at the bottom (for watermarks)
+                if new_x > 100 and new_x < gray.shape[1] - 100:
+                    roi_image = result_image[new_y:new_y+new_h, new_x:new_x+new_w]
+                    cv2.rectangle(image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
+                    if roi_image.shape[0] > 0 and roi_image.shape[1] > 0:
+                        text = ocr(roi_image)
+                        if text is not None:
+                            cv2.putText(image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (123, 255, 123), 2)
+                            print(text.split())
 
-        # for contour in cnts:
-        #     for x in range(roi.shape[1]):
-        #         if len(roi) == 0:
-        #             break
-        #         if roi[0, x] < 200:
-        #             cv2.floodFill(roi, None, seedPoint=(x, 0), newVal=0, loDiff=3, upDiff=3)  # Fill the background with white color
+        # Display the result
+        max_width = 1366
+        max_height = 768
+        # if image.shape[0] > max_width or image.shape[1] > max_height:
+        #     image.thumbnail((max_width, max_height))
+        image = cv2.resize(image, (960, 540))
+        cv2.imshow('Object Detection', image)
+        cv2.waitKey(0)
 
-        #         # Fill dark bottom pixels:
-        #         if roi[-1, x] < 200:
-        #             cv2.floodFill(roi, None, seedPoint=(x, roi.shape[0]-1), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-
-        #         for y in range(roi.shape[0]):
-        #             # Fill dark left side pixels:
-        #             if roi[y, 0] < 200:
-        #                 cv2.floodFill(roi, None, seedPoint=(0, y), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-
-        #             # Fill dark right side pixels:
-        #             if roi[y, 0] < 200:
-        #                 cv2.floodFill(roi, None, seedPoint=(gray.shape[1]-1, y), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-
-        #     # get rectangle bounding contour
-        #     [contour_x, contour_y, contour_w, contour_h] = cv2.boundingRect(contour)
-
-        #     # Don't plot small false positives that aren't text
-        #     if contour_w < 50 and contour_h < 50:
-        #         continue
-
-        #     # draw rectangle around contour on original image
-        #     cv2.rectangle(roi, (contour_x, contour_y), (contour_x + contour_w, contour_y + contour_h), (255, 0, 255), 2)
-        output_path = os.path.join('bib_images', 'roi_image_6.jpg')
-        cv2.imwrite(output_path, roi)
-        text = pytesseract.image_to_string(roi,lang="eng",config=custom_config)  # Perform OCR on the ROI
-        print(f"Detected text: {text}")
-        cv2.rectangle(image, (temp_x, temp_y), (temp_x+temp_w, temp_y+temp_h), (255, 0, 0), 2)
-        # cv2.putText(image, text, (temp_x, temp_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    
-        # Save the processed image with bounding box
-        # cv2.rectangle(result_image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        # output_path = os.path.join(output_folder, f"processed_{filename}")
-        # cv2.imwrite(output_path, result_image)
-        # cv2.imshow('Object Detection', roi)
-
-# Display the result
-image = cv2.resize(image, (960, 540)) 
-cv2.imshow('Object Detection', image)
-cv2.waitKey(0)
+# Close all OpenCV windows
 cv2.destroyAllWindows()
-
