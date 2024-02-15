@@ -23,7 +23,7 @@ def scale_roi(x, y, w, h, image_shape):
 cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
 
 # Folder paths
-input_folder = 'test_images/test_3'
+input_folder = 'test_images/test_3/hunat sugbu'
 
 # Iterate through each file in the folder
 for filename in os.listdir(input_folder):

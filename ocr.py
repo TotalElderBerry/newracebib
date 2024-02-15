@@ -46,9 +46,9 @@ def ocr(roi):
         for i in np.arange(0,256)]).astype("uint8")
     gray = cv2.LUT(gray,table)
 
-    # skewed_image = deskew(gray)
-    # if skewed_image is None:
-    #     return
+    skewed_image = deskew(gray)
+    if skewed_image is None:
+        return
     scale = cv2.resize(gray,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
 
     scale = crop(scale)
