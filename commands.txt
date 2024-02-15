@@ -6,4 +6,4 @@ C:\Users\Gemma\Documents\opencv\build\x64\vc14\bin\opencv_createsamples.exe -inf
 
 traincascade.exe -data "C:\Users\Gemma\Downloads\custom haar cascade\new-cascade\" -vec "C:\Users\Gemma\Downloads\custom haar cascade\pos.vec" -bg "C:\Users\Gemma\Downloads\custom haar cascade\neg.txt" -w 24 -h 24 -numPos 200 -numNeg 200 -numStages 10
 
-C:\Users\Gemma\Documents\opencv\build\x64\vc14\bin\opencv_traincascade.exe -data "C:\Users\Gemma\Downloads\custom haar cascade\cascade1" -vec "C:\Users\Gemma\Downloads\custom haar cascade\pos.vec" -bg "C:\Users\Gemma\Downloads\custom haar cascade\neg.txt" -w 24 -h 24 -numPos 590 -numNeg 1100 -numStages 15
+C:\Users\Gemma\Documents\opencv\build\x64\vc14\bin\opencv_traincascade.exe -data "C:\Users\Gemma\Downloads\custom haar cascade\cascade1" -vec "C:\Users\Gemma\Downloads\custom haar cascade\pos.vec" -bg "C:\Users\Gemma\Downloads\custom haar cascade\negative.txt" -w 24 -h 20 -numPos 610 -numNeg 1100 -numStages 15

@@ -45,7 +45,7 @@ def erode(image):
     return cv2.erode(image, kernel, iterations=1)
 
 def scale_roi(x,y,w,h,image):
-    expansion_factor = 1.15
+    expansion_factor = 1.1
     new_x = int(x - (w * (expansion_factor - 1) / 2))
     new_y = int(y - (h * (expansion_factor - 1) / 2))
     new_w = int(w * expansion_factor)

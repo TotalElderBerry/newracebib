@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<stage6>
+  <maxWeakCount>21</maxWeakCount>
+  <stageThreshold>-1.2846868038177490e+00</stageThreshold>
+  <weakClassifiers>
+    <_>
+      <internalNodes>
+        0 -1 10160 1.7087986634578556e-05</internalNodes>
+      <leafValues>
+        -5.5020081996917725e-01 -1.4218009077012539e-02</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 9313 3.8815131119918078e-05</internalNodes>
+      <leafValues>
+        -2.6773929595947266e-01 2.8400859236717224e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 9313 -1.7225474948645569e-05</internalNodes>
+      <leafValues>
+        3.0726203322410583e-01 -2.1555069088935852e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 78976 -6.1027966439723969e-02</internalNodes>
+      <leafValues>
+        -8.2868206501007080e-01 7.8092455863952637e-02</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 84039 -7.2257919237017632e-03</internalNodes>
+      <leafValues>
+        3.8349282741546631e-01 -1.5465031564235687e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 79397 -9.1049280017614365e-03</internalNodes>
+      <leafValues>
+        5.3250765800476074e-01 -1.1950027942657471e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 92960 3.2465276308357716e-03</internalNodes>
+      <leafValues>
+        9.2062622308731079e-02 -6.4760100841522217e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 54051 8.3772279322147369e-03</internalNodes>
+      <leafValues>
+        -1.4620050787925720e-01 4.3287712335586548e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 54727 -4.8081791028380394e-03</internalNodes>
+      <leafValues>
+        5.4189556837081909e-01 -1.4045247435569763e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 76695 -5.0392352044582367e-02</internalNodes>
+      <leafValues>
+        -7.0546221733093262e-01 8.9385703206062317e-02</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 86345 -2.6102956384420395e-02</internalNodes>
+      <leafValues>
+        4.5968052744865417e-01 -1.3147334754467010e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 52186 6.4279556274414063e-02</internalNodes>
+      <leafValues>
+        -1.2220314890146255e-01 5.7225626707077026e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 106893 -2.6470454409718513e-02</internalNodes>
+      <leafValues>
+        3.7746530771255493e-01 -1.4963674545288086e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 62287 1.0699139907956123e-02</internalNodes>
+      <leafValues>
+        -1.7605186998844147e-01 3.7993702292442322e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 16178 2.0291483961045742e-03</internalNodes>
+      <leafValues>
+        8.9945629239082336e-02 -6.5990579128265381e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 42587 1.2037999927997589e-02</internalNodes>
+      <leafValues>
+        -1.3548204302787781e-01 4.6515583992004395e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 90574 -2.9084572568535805e-02</internalNodes>
+      <leafValues>
+        -6.8862551450729370e-01 9.4702400267124176e-02</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 91997 -5.6398008018732071e-03</internalNodes>
+      <leafValues>
+        4.5926070213317871e-01 -1.3450571894645691e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 95662 -3.8875173777341843e-03</internalNodes>
+      <leafValues>
+        4.2043474316596985e-01 -1.4050871133804321e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 7576 2.9505366459488869e-02</internalNodes>
+      <leafValues>
+        -2.1104389429092407e-01 2.8449192643165588e-01</leafValues></_>
+    <_>
+      <internalNodes>
+        0 -1 107921 -2.9106244910508394e-03</internalNodes>
+      <leafValues>
+        -7.9404777288436890e-01 6.9319710135459900e-02</leafValues></_></weakClassifiers></stage6>
+</opencv_storage>

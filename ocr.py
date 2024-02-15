@@ -46,10 +46,10 @@ def ocr(roi):
         for i in np.arange(0,256)]).astype("uint8")
     gray = cv2.LUT(gray,table)
 
-    skewed_image = deskew(gray)
-    if skewed_image is None:
-        return
-    scale = cv2.resize(skewed_image,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
+    # skewed_image = deskew(gray)
+    # if skewed_image is None:
+    #     return
+    scale = cv2.resize(gray,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
 
     scale = crop(scale)
 
@@ -64,10 +64,10 @@ def ocr(roi):
     if is_image_small:
         scale = cv2.Canny(scale, 100,200)
     else:
-        scale = cv2.Canny(scale, 90,170)
-    scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, kernel)
-    scale = cv2.GaussianBlur(scale,(3,3),0)
+        scale = cv2.Canny(scale, 90,130)
+    scale = cv2.GaussianBlur(scale,(5,5),0)
     scale = cv2.threshold(scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    # scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, kernel)
 
         
     cnts = cv2.findContours(scale, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -103,72 +103,69 @@ def ocr(roi):
             
             #
             roi = image[y:y+h, x:x+w]
-            #PREPROCESS ROUND 2
+
+            new_width, new_height = roi.shape[1]*2, roi.shape[0]*2  # Adjust these dimensions as needed
+            #PREPROCESS ROUND 2 
+            temp_kernel = np.ones((9,9), np.uint8)
+
+            roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
             roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
             roi = cv2.erode(roi, kernel, iterations=1)
             roi = cv2.medianBlur(roi,3)
-
-            # roi = cv2.Canny(roi, 128,255)
-            # roi = cv2.morphologyEx(roi, cv2.MORPH_OPEN, kernel)
-            new_width, new_height = 200, 200  # Adjust these dimensions as needed
-
+            roi = cv2.GaussianBlur(roi,(3,3),0)
+            roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
+            roi = cv2.bitwise_not(roi)
+            
+            
             # Create a blank white image as the new background
-            background = np.ones((new_height, new_width), dtype=np.uint8) * 0
+            background = np.ones((new_height, new_width), dtype=np.uint8) * 255
 
             # Calculate the position to place the ROI in the center of the new background
             x_offset = (new_width - roi.shape[1]) // 2
             y_offset = (new_height - roi.shape[0]) // 2
 
             # Copy the binary ROI onto the new background
-            if roi.shape[0] <= new_width and roi.shape[1] <= new_height:
-                background[y_offset:y_offset + roi.shape[0], x_offset:x_offset + roi.shape[1]] = roi
-                padding = 2
-                cv2.rectangle(background, (x_offset - padding, y_offset - padding),(x_offset + roi.shape[1] + padding, y_offset + roi.shape[0] + padding),(123, 255, 0), 2)
-                background = cv2.resize(background, None, fx=1.1,fy=1.1,interpolation=cv2.INTER_CUBIC)
-            # background = deskew(background)
+            background[y_offset:y_offset + roi.shape[0], x_offset:x_offset + roi.shape[1]] = roi
+            background = cv2.resize(background, None, fx=1.2,fy=1.2,interpolation=cv2.INTER_CUBIC)
 
-            
-                background = cv2.erode(background,kernel,iterations=1)
-                # closing
-                # background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, kernel)
-                # background = cv2.bitwise_not(background)
-                # background = cv2.GaussianBlur(background,(3,3),0)
-                # background = image[y:y+h, x:x+w]
-                text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
-                text = text.strip()
-                if not text.isalnum():
-                    for x in range(roi.shape[1]):
-                        if len(background) == 0:
-                            break
-                        if background[0, x] < 201:
-                            cv2.floodFill(background, None, seedPoint=(x, 0), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-                        # Fill dark bottom pixels:
-                        if background[-1, x] < 201:
-                            cv2.floodFill(background, None, seedPoint=(x, background.shape[0]-1), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-                        for y in range(roi.shape[0]):
-                            # Fill dark left side pixels:
-                            if roi[y, 0] < 201 and y < new_height:
-                                cv2.floodFill(background, None, seedPoint=(0, y), newVal=255, loDiff=3, upDiff=3)  # Fill the background with white color
-            text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
-            text = text.strip()
-            # print(f"Detected text: {text}")
-            # Offset for the text position
-            text_offset_x, text_offset_y = 10, 10  # Adjust these values as needed
-
-            # Add the offset to the x and y positions
-            text_x = x_offset + text_offset_x
-            text_y = y_offset + text_offset_y
-
-            # Draw the text on the background
-            # cv2.putText(background, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (123, 255, 123), 2)
-            # cv2.putText(background, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            background = cv2.erode(background,kernel,iterations=1)
+            background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, temp_kernel)
             # cv2.imshow('Bib', background)
             # cv2.waitKey(0)
             # cv2.destroyAllWindows()
-            final_text = final_text + text 
+            text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
+            text = text.strip()
+            # cv2.imshow('Bib', background)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            if not text.isalnum() or text.isalpha():
+                background = np.ones((new_height, new_width), dtype=np.uint8) * 0
 
-    # cv2.imshow('Bib', scale)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+                # Calculate the position to place the ROI in the center of the new background
+                x_offset = (new_width - roi.shape[1]) // 2
+                y_offset = (new_height - roi.shape[0]) // 2
+
+                # Copy the binary ROI onto the new background
+                background[y_offset:y_offset + roi.shape[0], x_offset:x_offset + roi.shape[1]] = roi
+                background = cv2.resize(background, None, fx=1.2,fy=1.2,interpolation=cv2.INTER_CUBIC)
+
+                background = cv2.erode(background,kernel,iterations=1)
+                background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, temp_kernel)
+                
+                text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
+                text = text.strip().replace(".","").replace(",","").replace("/","")
+                if text == 'I':
+                    text = '1'
+                if text == 'O':
+                    text = '0'
+                
+                # print(text)
+            if text.isnumeric():
+                # print(text)
+                final_text = final_text + text 
+
+    cv2.imshow('Bib', scale)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return final_text
 
