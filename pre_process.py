@@ -106,7 +106,7 @@ def deskew(image):
     print(angle)
     if angle is None:
         return None
-    if angle > 0:
+    if angle > -10:
         rotated = rotate(image, angle, resize=True) * 255
         return rotated.astype(np.uint8)
     return image
