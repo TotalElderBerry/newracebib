@@ -3,6 +3,7 @@ import cv2
 import pytesseract
 import numpy as np
 from ocr import ocr
+from PIL import Image
 
 def scale_roi(x, y, w, h, image_shape):
     expansion_factor = 1.2
@@ -23,7 +24,7 @@ def scale_roi(x, y, w, h, image_shape):
 cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
 
 # Folder paths
-input_folder = 'test_images/test_3/landmasters'
+input_folder = 'test_images/test_3/w2w'
 
 # Iterate through each file in the folder
 for filename in os.listdir(input_folder):
@@ -55,17 +56,20 @@ for filename in os.listdir(input_folder):
                         text = ocr(roi_image)
                         if text is not None and text.isalnum():
                             cv2.rectangle(image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
-                            cv2.putText(image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (123, 255, 123), 2)
-                            print(text.split())
+                            cv2.putText(image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (123, 255, 123), 8)
+                            # print(text.split())
 
         # Display the result
         max_width = 1366
         max_height = 768
-        # if image.shape[0] > max_width or image.shape[1] > max_height:
-        #     image.thumbnail((max_width, max_height))
-        image = cv2.resize(image, (960, 540))
-        cv2.imshow('Object Detection', image)
-        cv2.waitKey(0)
+        if image.shape[0] > max_width or image.shape[1] > max_height:
+            image = Image.fromarray(image, "RGB")
+            image.thumbnail((max_width, max_height))
+            image = np.array(image)
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imshow('Object Detection', image)
+            cv2.waitKey(0)
+        # image = cv2.resize(image, (960, 540))
 
 # Close all OpenCV windows
 cv2.destroyAllWindows()
