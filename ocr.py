@@ -118,23 +118,31 @@ def ocr(roi):
             roi = image[y:y+h, x:x+w]
             
             #PREPROCESS ROUND 2 
-
+            # roi = cv2.medianBlur(roi, 5)
+            # roi = deskew(roi)
+            roi = cv2.GaussianBlur(roi,(5,5),0)
             roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            # roi = cv2.erode(roi, kernel, iterations=1)
             roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-            roi = cv2.erode(roi, kernel, iterations=1)
-            roi = cv2.medianBlur(roi,3)
-            roi = cv2.GaussianBlur(roi,(3,3),0)
             roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
+            roi = cv2.dilate(roi, kernel, iterations=3)
+
+            # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            # roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # roi = cv2.erode(roi, kernel, iterations=1)
+            # roi = cv2.medianBlur(roi,3)
+            # roi = cv2.GaussianBlur(roi,(3,3),0)
+            # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
             roi = cv2.bitwise_not(roi)
             
             # Create a blank white image as the new background
             background = convert_bg(roi,255)
             text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
             text = text.strip()
-            print(f"first preprocessed: {text}")
-            cv2.imshow('Bib', background)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # print(f"first preprocessed: {text}")
+            # cv2.imshow('Bib', background)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
             
             if not text.isalnum() or text.isalpha():
 
@@ -149,7 +157,6 @@ def ocr(roi):
                 
                 # print(text)
             if text.isnumeric():
-                print(text)
                 final_text = final_text + text 
 
     cv2.imshow('Bib', scale)
