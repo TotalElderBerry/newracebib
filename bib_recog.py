@@ -21,7 +21,7 @@ def scale_roi(x, y, w, h, image_shape):
     return new_x, new_y, new_w, new_h   
 
 # Load the cascade
-cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
+cascade = cv2.CascadeClassifier('classifier/cascade.xml')
 
 # Folder paths
 input_folder = 'test_images/test_3/w2w'
@@ -32,6 +32,7 @@ for filename in os.listdir(input_folder):
         # Read the input image
         image_path = os.path.join(input_folder, filename)
         image = cv2.imread(image_path)
+        display_image = image.copy()
         if image is None:
             continue
 
@@ -55,19 +56,19 @@ for filename in os.listdir(input_folder):
                     if roi_image.shape[0] > 0 and roi_image.shape[1] > 0:
                         text = ocr(roi_image)
                         if text is not None and text.isalnum():
-                            cv2.rectangle(image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
-                            cv2.putText(image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (123, 255, 123), 8)
+                            cv2.rectangle(display_image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
+                            cv2.putText(display_image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (123, 255, 123), 8)
                             # print(text.split())
 
         # Display the result
         max_width = 1366
         max_height = 768
         if image.shape[0] > max_width or image.shape[1] > max_height:
-            image = Image.fromarray(image, "RGB")
-            image.thumbnail((max_width, max_height))
-            image = np.array(image)
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            cv2.imshow('Object Detection', image)
+            display_image = Image.fromarray(display_image, "RGB")
+            display_image.thumbnail((max_width, max_height))
+            display_image = np.array(display_image)
+            # display_image = cv2.cvtColor(display_image, cv2.COLOR_BGR2RGB)
+            cv2.imshow('Object Detection', display_image)
             cv2.waitKey(0)
         # image = cv2.resize(image, (960, 540))
 

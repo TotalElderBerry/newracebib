@@ -103,6 +103,7 @@ def gaussian(image):
 
 def deskew(image):
     angle = determine_skew(image)
+    # print(angle)
     if angle is None:
         return None
     if angle > -10:

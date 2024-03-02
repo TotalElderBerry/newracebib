@@ -54,15 +54,14 @@ def ocr(roi):
 
     is_image_small = is_small(roi)
     image = cv2.resize(roi,(300,250))
-    isdark = is_dark(image)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    gamma = 1.1
-    invGamma = 1.0 / gamma
-    table = np.array([((i/255.0)**invGamma)*255
-        for i in np.arange(0,256)]).astype("uint8")
-    gray = cv2.LUT(gray,table)
+    # gamma = 1.1
+    # invGamma = 1.0 / gamma
+    # table = np.array([((i/255.0)**invGamma)*255
+    #     for i in np.arange(0,256)]).astype("uint8")
+    # gray = cv2.LUT(gray,table)
 
     skewed_image = deskew(gray)
     if skewed_image is None:
@@ -73,13 +72,16 @@ def ocr(roi):
 
     image = scale.copy()
     
-    scale = cv2.medianBlur(scale, 5)
-    scale = cv2.dilate(scale, kernel, iterations=1)
+    scale = cv2.GaussianBlur(scale,(5,5),0)
+    # scale = cv2.medianBlur(scale, 5)
+    # scale = cv2.dilate(scale, kernel, iterations=1)
+    
     # scale = cv2.erode(scale, kernel, iterations=2)
-    if is_image_small:
-        scale = cv2.Canny(scale, 100,200)
-    else:
-        scale = cv2.Canny(scale, 90,130)
+    scale = cv2.Canny(scale, 90,130)
+    # if is_image_small:
+    #     scale = cv2.Canny(scale, 100,200)
+    # else:
+    #     scale = cv2.Canny(scale, 90,130)
     scale = cv2.GaussianBlur(scale,(5,5),0)
     scale = cv2.threshold(scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     # scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, kernel)
@@ -119,20 +121,39 @@ def ocr(roi):
             
             #PREPROCESS ROUND 2 
 
+            #GOOD FOR WHITE BG
+            
             # roi = cv2.GaussianBlur(roi,(5,5),0)
             # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
             # roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
             # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
             # roi = cv2.dilate(roi, kernel, iterations=3)
 
-            roi = cv2.medianBlur(roi, 5)
-            roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
-            roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-            roi = cv2.erode(roi, kernel, iterations=1)
-            roi = cv2.medianBlur(roi,3)
-            roi = cv2.GaussianBlur(roi,(3,3),0)
-            roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
-            roi = cv2.bitwise_not(roi)
+
+            #experiment
+            
+            # roi = cv2.medianBlur(roi, 5)
+            # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            # roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # roi = cv2.erode(roi, kernel, iterations=1)
+            # roi = cv2.medianBlur(roi,3)
+            # roi = cv2.GaussianBlur(roi,(3,3),0)
+            # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
+            # roi = cv2.bitwise_not(roi)
+            
+            # roi = cv2.GaussianBlur(roi,(5,5),0)
+            # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            # roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # roi = cv2.erode(roi, kernel, iterations=1)
+            # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, kernel)
+            # roi = cv2.bitwise_not(roi)
+            
+            # roi = cv2.GaussianBlur(roi,(5,5),0)
+            # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            # roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # roi = cv2.erode(roi, kernel, iterations=1)
+            # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, kernel)
+            # roi = cv2.bitwise_not(roi)
             
             # roi = cv2.GaussianBlur(roi,(5,5),0)
             # roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
@@ -141,6 +162,18 @@ def ocr(roi):
             # roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, kernel)
             # roi = cv2.bitwise_not(roi)
 
+            #note: erode for white bg, dilate for colored bg
+
+            roi = cv2.GaussianBlur(roi,(5,5),0)
+            roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
+            roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            roi = cv2.erode(roi, kernel, iterations=2) #for colored bg
+            # roi = cv2.dilate(roi, kernel, iterations=1) #for white bg
+            roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
+            roi = cv2.bitwise_not(roi)
+            
+            # roi = cv2.medianBlur(roi,3)
+            
             # Create a blank white image as the new background
             background = convert_bg(roi,255)
             text = pytesseract.image_to_string(background,lang="eng",config=custom_config)  # Perform OCR on the ROI
@@ -161,8 +194,8 @@ def ocr(roi):
                 if text == 'O':
                     text = '0'
                 
-                # print(text)
             if text.isnumeric():
+                # print(text)
                 final_text = final_text + text 
 
     # cv2.imshow('Bib', scale)
