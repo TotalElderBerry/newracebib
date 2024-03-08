@@ -6,7 +6,7 @@ from ocr import ocr
 from PIL import Image
 
 def scale_roi(x, y, w, h, image_shape):
-    expansion_factor = 1.2
+    expansion_factor = 1.15
     new_x = int(x - (w * (expansion_factor - 1) / 2))
     new_y = int(y - (h * (expansion_factor - 1) / 2))
     new_w = int(w * expansion_factor)
@@ -21,10 +21,10 @@ def scale_roi(x, y, w, h, image_shape):
     return new_x, new_y, new_w, new_h   
 
 # Load the cascade
-cascade = cv2.CascadeClassifier('classifier/cascade.xml')
+cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
 
 # Folder paths
-input_folder = 'test_images/test_3/w2w'
+input_folder = 'test_images/test_3/dagan sa kadaugan'
 
 # Iterate through each file in the folder
 for filename in os.listdir(input_folder):

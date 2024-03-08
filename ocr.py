@@ -19,7 +19,9 @@ def is_dark(image_path, threshold=100):
     return mean_intensity < threshold
 
 def is_small(image):
-    return image.shape[0] <= 100 and image.shape[2] <= 100
+    # print("Width:", image.shape[0])
+    # print("Height:", image.shape[1])
+    return image.shape[0] <= 175 and image.shape[1] <= 200
 
 
 def is_inside_contour(cnts, prev, current):
@@ -66,7 +68,7 @@ def ocr(roi):
     skewed_image = deskew(gray)
     if skewed_image is None:
         return
-    scale = cv2.resize(gray,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
+    scale = cv2.resize(skewed_image,None, fx= 1.5, fy= 1.5, interpolation=cv2.INTER_AREA)
 
     scale = crop(scale)
 
@@ -77,11 +79,11 @@ def ocr(roi):
     # scale = cv2.dilate(scale, kernel, iterations=1)
     
     # scale = cv2.erode(scale, kernel, iterations=2)
-    scale = cv2.Canny(scale, 90,130)
-    # if is_image_small:
-    #     scale = cv2.Canny(scale, 100,200)
-    # else:
-    #     scale = cv2.Canny(scale, 90,130)
+    # scale = cv2.Canny(scale, 90,130)
+    if is_image_small:
+        scale = cv2.Canny(scale, 50,120)
+    else:
+        scale = cv2.Canny(scale, 90,130)
     scale = cv2.GaussianBlur(scale,(5,5),0)
     scale = cv2.threshold(scale, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     # scale = cv2.morphologyEx(scale, cv2.MORPH_CLOSE, kernel)
@@ -167,11 +169,10 @@ def ocr(roi):
             roi = cv2.GaussianBlur(roi,(5,5),0)
             roi = cv2.resize(roi, None, fx=1.15,fy=1.15,interpolation=cv2.INTER_CUBIC)
             roi = cv2.threshold(roi, 127, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-            roi = cv2.erode(roi, kernel, iterations=2) #for colored bg
+            roi = cv2.erode(roi, kernel, iterations=1) #for colored bg
             # roi = cv2.dilate(roi, kernel, iterations=1) #for white bg
             roi = cv2.morphologyEx(roi, cv2.MORPH_CLOSE, temp_kernel)
             roi = cv2.bitwise_not(roi)
-            
             # roi = cv2.medianBlur(roi,3)
             
             # Create a blank white image as the new background

@@ -103,11 +103,13 @@ def gaussian(image):
 
 def deskew(image):
     angle = determine_skew(image)
-    # print(angle)
+    print(angle)
     if angle is None:
         return None
-    if angle > -10:
-        rotated = rotate(image, angle, resize=True) * 255
+    else:
+        rounded_angel = round(angle)
+    if (rounded_angel > -45 and rounded_angel <= -10) or rounded_angel >= 10:
+        rotated = rotate(image, angle, resize=False) * 255
         return rotated.astype(np.uint8)
     return image
 
