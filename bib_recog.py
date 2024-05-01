@@ -4,7 +4,6 @@ import pytesseract
 import numpy as np
 from ocr import ocr
 from PIL import Image
-
 def scale_roi(x, y, w, h, image_shape):
     expansion_factor = 1.15
     new_x = int(x - (w * (expansion_factor - 1) / 2))
@@ -24,7 +23,7 @@ def scale_roi(x, y, w, h, image_shape):
 cascade = cv2.CascadeClassifier('cascade1/cascade.xml')
 
 # Folder paths
-input_folder = 'test_images/test_3/dagan sa kadaugan'
+input_folder = 'test_images/test_3/landmasters'
 
 # Iterate through each file in the folder
 for filename in os.listdir(input_folder):
@@ -54,10 +53,8 @@ for filename in os.listdir(input_folder):
                 if new_x > 100 and new_x < gray.shape[1] - 100:
                     roi_image = result_image[new_y:new_y+new_h, new_x:new_x+new_w]
                     if roi_image.shape[0] > 0 and roi_image.shape[1] > 0:
-                        text = ocr(roi_image)
-                        if text is not None and text.isalnum():
-                            cv2.rectangle(display_image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
-                            cv2.putText(display_image, text, (new_x, new_y), cv2.FONT_HERSHEY_SIMPLEX, 2, (123, 255, 123), 8)
+                        # text = ocr(roi_image)
+                        cv2.rectangle(display_image, (new_x, new_y), (new_x+new_w, new_y+new_h), (255, 0, 0), 2)
                             # print(text.split())
 
         # Display the result
